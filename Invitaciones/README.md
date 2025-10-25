@@ -51,7 +51,39 @@ Una aplicación web completa para gestionar invitaciones de eventos con confirma
 └── deployment/        # Scripts de deployment
 ```
 
-## � Deploy Rápido (AWS)
+## 🚀 Inicio Rápido
+
+### Opción 1: Script Automático (Más Fácil)
+```bash
+# Ejecutar script interactivo
+./start.sh
+```
+
+### Opción 2: Docker Compose (Recomendado)
+```bash
+# Iniciar todos los servicios
+docker-compose up --build -d
+
+# Ver estado
+docker-compose ps
+
+# URLs disponibles:
+# - Frontend: http://localhost:3000
+# - Backend: http://localhost:8000
+# - API Docs: http://localhost:8000/docs
+```
+
+### Opción 3: Desarrollo Local Rápido
+```bash
+# Script que inicia backend y frontend automáticamente
+./run-local.sh
+```
+
+📖 **Más detalles**: Ver [START-GUIDE.md](START-GUIDE.md) para instrucciones completas
+
+---
+
+## 🌐 Deploy Rápido (AWS)
 
 ### 1️⃣ **Clonar Repositorio**
 ```bash
