@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Asistencia - Universidad Panamericana</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'up-gold': {
+                            50: '#fefdf8',
+                            100: '#fdf9e9',
+                            200: '#fbf0c5',
+                            300: '#f8e298',
+                            400: '#f4cc5a',
+                            500: '#f0b429',
+                            600: '#d4950f',
+                            700: '#b37b0d',
+                            800: '#8f5e14',
+                            900: '#744f16',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-up-gold-50 to-up-gold-100">
+    <div class="min-h-screen flex items-center justify-center">
+        <div class="max-w-lg w-full bg-white rounded-lg shadow-lg p-8 border border-up-gold-200">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-gradient-to-br from-up-gold-600 to-up-gold-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-white font-bold text-xl">UP</span>
+                </div>
+                <h1 class="text-2xl font-bold text-up-gold-800 mb-2">
+                    Confirmar Asistencia
+                </h1>
+                <p class="text-gray-600">
+                    Por favor confirma tu asistencia al evento
+                </p>
+            </div>
+            
+            <form id="confirmationForm" class="space-y-4">
+                <div>
+                    <label for="fullName" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nombre completo *
+                    </label>
+                    <input type="text" id="fullName" name="fullName" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-up-gold-500 focus:border-up-gold-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        ¿Asistirás? *
+                    </label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="radio" name="attendance" value="yes" required class="text-up-gold-600 focus:ring-up-gold-500">
+                            <span class="ml-2 text-gray-700">Sí, asistiré</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="attendance" value="no" required class="text-up-gold-600 focus:ring-up-gold-500">
+                            <span class="ml-2 text-gray-700">No podré asistir</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="guests" class="block text-sm font-medium text-gray-700 mb-2">
+                        Número de acompañantes *
+                    </label>
+                    <select id="guests" name="guests" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-up-gold-500 focus:border-up-gold-500">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                        Teléfono / WhatsApp *
+                    </label>
+                    <input type="tel" id="phone" name="phone" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-up-gold-500 focus:border-up-gold-500"
+                           placeholder="Ej: +52 33 1234 5678">
+                </div>
+                
+                <div>
+                    <label for="comments" class="block text-sm font-medium text-gray-700 mb-2">
+                        Comentarios / necesidades especiales
+                    </label>
+                    <textarea id="comments" name="comments" rows="3" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-up-gold-500 focus:border-up-gold-500"
+                              placeholder="Ej: Requerimientos dietéticos, necesidades especiales..."></textarea>
+                </div>
+                
+                <button type="submit" 
+                        class="w-full bg-gradient-to-r from-up-gold-600 to-up-gold-700 text-white py-3 px-4 rounded-md hover:from-up-gold-700 hover:to-up-gold-800 font-bold text-lg transition duration-200">
+                    Confirmar asistencia
+                </button>
+                
+                <p class="text-xs text-gray-500 text-center mt-4">
+                    Al registrar tu asistencia recibirás la ubicación exacta en Ciudad Granja vía
+                    WhatsApp. Este registro es tu pase de acceso.
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('confirmationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const fullName = formData.get('fullName');
+            const attendance = formData.get('attendance');
+            const phone = formData.get('phone');
+            
+            if (!fullName || !attendance || !phone) {
+                alert('Por favor completa todos los campos obligatorios (*)');
+                return;
+            }
+            
+            // Simular envío al backend
+            const confirmationData = {
+                full_name: fullName,
+                will_attend: attendance === 'yes',
+                additional_guests: parseInt(formData.get('guests')) || 0,
+                phone: phone,
+                comments: formData.get('comments') || null
+            };
+            
+            console.log('Datos de confirmación:', confirmationData);
+            
+            // Enviar al backend
+            fetch('/api/confirmations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(confirmationData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Respuesta del servidor:', data);
+                showConfirmationModal(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Si hay error, mostrar modal con datos locales
+                showConfirmationModal(confirmationData);
+            });
+            
+            // Opcional: limpiar formulario
+            e.target.reset();
+        });
+
+        function showConfirmationModal(data) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg shadow-xl p-8 m-4 max-w-md w-full border border-up-gold-200">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-gradient-to-br from-up-gold-600 to-up-gold-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-white font-bold text-2xl">✓</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-up-gold-800 mb-4">¡Confirmación Exitosa!</h3>
+                        
+                        <div class="bg-up-gold-50 p-4 rounded-lg border border-up-gold-200 mb-6 text-left">
+                            <h4 class="font-semibold text-up-gold-800 mb-2">Datos de tu confirmación:</h4>
+                            <p class="text-sm text-gray-700"><strong>ID:</strong> #${data.id || 'N/A'}</p>
+                            <p class="text-sm text-gray-700"><strong>Nombre:</strong> ${data.full_name}</p>
+                            <p class="text-sm text-gray-700"><strong>Asistencia:</strong> ${data.will_attend ? 'Sí asistiré' : 'No podré asistir'}</p>
+                            <p class="text-sm text-gray-700"><strong>Acompañantes:</strong> ${data.additional_guests}</p>
+                            <p class="text-sm text-gray-700"><strong>WhatsApp:</strong> ${data.phone}</p>
+                            ${data.comments ? `<p class="text-sm text-gray-700"><strong>Comentarios:</strong> ${data.comments}</p>` : ''}
+                            ${data.confirmed_at ? `<p class="text-xs text-gray-500 mt-2"><strong>Confirmado:</strong> ${new Date(data.confirmed_at).toLocaleString('es-MX')}</p>` : ''}
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <button onclick="downloadConfirmation('${data.full_name}', ${data.will_attend}, ${data.additional_guests}, '${data.phone}', '${data.id || 'N/A'}')" 
+                                    class="w-full bg-gradient-to-r from-up-gold-600 to-up-gold-700 text-white py-3 px-4 rounded-md hover:from-up-gold-700 hover:to-up-gold-800 font-medium transition duration-200">
+                                📥 Descargar Imagen de Confirmación
+                            </button>
+                            <button onclick="closeModal()" 
+                                    class="w-full border border-up-gold-600 text-up-gold-700 py-2 px-4 rounded-md hover:bg-up-gold-50 transition duration-200 font-medium">
+                                Cerrar
+                            </button>
+                        </div>
+                        
+                        <p class="text-xs text-gray-500 mt-4">
+                            Recibirás la ubicación exacta vía WhatsApp. Este registro es tu pase de acceso.
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Cerrar modal al hacer clic fuera
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+        }
+
+        function closeModal() {
+            const modal = document.querySelector('.fixed.inset-0');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function downloadConfirmation(name, willAttend, guests, phone, confirmationId = 'N/A') {
+            // Crear canvas para la imagen
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 1200;
+            const ctx = canvas.getContext('2d');
+
+            // Fondo degradado dorado
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#fefdf8'); // up-gold-50
+            gradient.addColorStop(1, '#fdf9e9'); // up-gold-100
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Borde dorado
+            ctx.strokeStyle = '#d4950f'; // up-gold-600
+            ctx.lineWidth = 8;
+            ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+            // Título
+            ctx.fillStyle = '#8f5e14'; // up-gold-800
+            ctx.font = 'bold 42px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('🎓 CONFIRMACIÓN DE ASISTENCIA', canvas.width / 2, 120);
+
+            // Universidad
+            ctx.fillStyle = '#b37b0d'; // up-gold-700
+            ctx.font = 'bold 28px Arial';
+            ctx.fillText('Universidad Panamericana', canvas.width / 2, 180);
+            ctx.font = '24px Arial';
+            ctx.fillText('Campus Guadalajara', canvas.width / 2, 220);
+
+            // Evento
+            ctx.fillStyle = '#8f5e14'; // up-gold-800
+            ctx.font = 'bold 32px Arial';
+            ctx.fillText('Fiesta de Finalización del Posgrado', canvas.width / 2, 320);
+
+            // Fecha y hora
+            ctx.fillStyle = '#374151'; // gray-700
+            ctx.font = '24px Arial';
+            ctx.fillText('📅 Viernes 14 de noviembre de 2025', canvas.width / 2, 380);
+            ctx.fillText('🕐 17:00 hrs', canvas.width / 2, 420);
+            ctx.fillText('📍 Ciudad Granja', canvas.width / 2, 460);
+
+            // Separador
+            ctx.strokeStyle = '#d4950f'; // up-gold-600
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(100, 520);
+            ctx.lineTo(canvas.width - 100, 520);
+            ctx.stroke();
+
+            // Datos del invitado
+            ctx.fillStyle = '#8f5e14'; // up-gold-800
+            ctx.font = 'bold 28px Arial';
+            ctx.fillText('DATOS DEL INVITADO', canvas.width / 2, 580);
+
+            ctx.fillStyle = '#374151'; // gray-700
+            ctx.font = '22px Arial';
+            ctx.textAlign = 'left';
+            
+            const leftMargin = 80;
+            let yPosition = 640;
+            
+            ctx.fillText('🆔 ID: #' + confirmationId, leftMargin, yPosition);
+            yPosition += 50;
+            ctx.fillText('👤 Nombre: ' + name, leftMargin, yPosition);
+            yPosition += 50;
+            ctx.fillText('✅ Asistencia: ' + (willAttend ? 'SÍ ASISTIRÉ' : 'NO PODRÉ ASISTIR'), leftMargin, yPosition);
+            yPosition += 50;
+            ctx.fillText('👥 Acompañantes: ' + guests, leftMargin, yPosition);
+            yPosition += 50;
+            ctx.fillText('📱 WhatsApp: ' + phone, leftMargin, yPosition);
+
+            // Separador
+            ctx.strokeStyle = '#d4950f'; // up-gold-600
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(100, yPosition + 40);
+            ctx.lineTo(canvas.width - 100, yPosition + 40);
+            ctx.stroke();
+
+            // Código QR simulado (cuadrado decorativo)
+            ctx.fillStyle = '#8f5e14'; // up-gold-800
+            ctx.fillRect(canvas.width / 2 - 60, yPosition + 80, 120, 120);
+            ctx.fillStyle = '#fefdf8'; // up-gold-50
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('QR', canvas.width / 2, yPosition + 150);
+
+            // Texto inferior
+            ctx.fillStyle = '#6b7280'; // gray-500
+            ctx.font = '18px Arial';
+            ctx.fillText('Este registro es tu pase de acceso', canvas.width / 2, yPosition + 250);
+            ctx.fillText('Recibirás la ubicación exacta vía WhatsApp', canvas.width / 2, yPosition + 280);
+
+            // Fecha de generación
+            ctx.fillStyle = '#9ca3af'; // gray-400
+            ctx.font = '14px Arial';
+            const now = new Date();
+            ctx.fillText('Generado el: ' + now.toLocaleDateString('es-MX') + ' a las ' + now.toLocaleTimeString('es-MX'), canvas.width / 2, canvas.height - 60);
+
+            // Descargar imagen
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `confirmacion_${name.replace(/\s+/g, '_')}_posgrado_up.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        // Cerrar modal con Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

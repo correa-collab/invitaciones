@@ -1,0 +1,23 @@
+🎯 SOLUCIÓN RÁPIDA - Copiar y pegar archivos en GitHub
+=========================================================
+
+Ve a: https://github.com/correa-collab/invitaciones
+
+MÉTODO MÁS FÁCIL:
+1. Click "Add file" → "Create new file"
+2. Copia y pega el contenido de cada archivo importante
+
+ARCHIVOS PRINCIPALES A CREAR:
+===============================
+
+1. docker-compose.yml
+2. README.md
+3. backend/requirements.txt
+4. backend/main.py
+5. backend/config.py
+6. backend/.env
+7. frontend/package.json
+8. frontend/index.html
+9. .gitignore
+
+¡El contenido de cada archivo está listo en tu proyecto local!

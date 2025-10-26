@@ -1,0 +1,27 @@
+FROM python:3.13-slim
+
+WORKDIR /app
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar requirements
+COPY backend/requirements.txt .
+
+# Instalar dependencias Python
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copiar código de la aplicación
+COPY backend/ ./backend/
+COPY static/ ./static/
+
+# Crear directorio para datos
+RUN mkdir -p /app/data
+
+# Exponer puerto
+EXPOSE 8000
+
+# Comando para ejecutar la aplicación
+CMD ["python", "backend/simple_main.py"]
