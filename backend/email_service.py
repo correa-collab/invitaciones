@@ -37,15 +37,17 @@ class EmailService:
         try:
             # Crear mensaje
             message = MIMEMultipart("alternative")
-            message["Subject"] = "✅ Confirmación de Asistencia - Posgrado en TIC's"
+            # Usar Header para codificar correctamente el subject con UTF-8
+            from email.header import Header
+            message["Subject"] = Header("✅ Confirmación de Asistencia - Posgrado en TIC's", 'utf-8')
             message["From"] = self.email
             message["To"] = to_email
             
             # Crear contenido HTML
             html_content = self._create_email_html(guest_name, event_details)
             
-            # Adjuntar contenido HTML
-            html_part = MIMEText(html_content, "html")
+            # Adjuntar contenido HTML con codificación UTF-8
+            html_part = MIMEText(html_content, "html", "utf-8")
             message.attach(html_part)
             
             # Adjuntar imagen del pase si está disponible
