@@ -28,14 +28,14 @@
         }
     </script>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-up-gold-50 to-up-gold-100">
+<body class="bg-gradient-to-br from-up-gold-50 to-up-gold-100">
     <!-- Navigation -->
     <nav class="bg-white shadow-sm border-b border-up-gold-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <div class="w-10 h-10 bg-gradient-to-br from-up-gold-600 to-up-gold-700 rounded-lg flex items-center justify-center mr-3">
-                        <span class="text-white font-bold text-lg"></span>
+                        <span class="text-white font-bold text-lg" style="filter: brightness(0) invert(1);">🎓</span>
                     </div>
                     <h1 class="text-xl font-semibold text-up-gold-800">
                         Sistema de Invitaciones
@@ -54,18 +54,17 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <main class="max-w-7xl mx-auto py-4 sm:px-6 lg:px-8">
         <div class="text-center">
             <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8 border border-up-gold-200">
                 <div class="w-20 h-20 bg-gradient-to-br from-up-gold-600 to-up-gold-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <span class="text-white font-bold text-3xl">🎓</span>
+                    <span class="text-white font-bold text-3xl" style="filter: brightness(0) invert(1);">🎓</span>
                 </div>
                 <h1 class="text-3xl font-bold text-up-gold-800 mb-4">
                     Invitación a la Celebración de Finalización del Posgrado
                 </h1>
                 <p class="text-gray-700 mb-6 text-left">
-                    El Posgrado en Derecho de las Tecnologías de la Información de la Universidad
-                    Panamericana, Campus Guadalajara, tiene el honor de invitarlo a la celebración por
+                    Los alumnos del Posgrado en TIC's tienen el honor de invitarlo a la celebración por
                     la culminación del posgrado.
                 </p>
                 <p class="text-gray-600 mb-8 text-left">
@@ -80,7 +79,7 @@
                         <div><strong>🗓</strong> Viernes 14 de noviembre de 2025</div>
                         <div><strong>⏰</strong> 17:00 hrs</div>
                         <div><strong>🏛</strong> Culminación del Posgrado</div>
-                        <div class="md:col-span-2"><strong>🏫</strong> Universidad Panamericana · Campus Guadalajara</div>
+                        <div class="md:col-span-2"><strong>🏫</strong> Posgrado en TIC's</div>
                         <div class="md:col-span-2 text-up-gold-700"><strong>📲</strong> La dirección exacta se enviará al número de WhatsApp registrado</div>
                     </div>
                     <div class="mt-4 pt-4 border-t border-up-gold-200">
@@ -92,7 +91,13 @@
                 </div>
 
                 <div class="space-y-4">
-            
+                    <a 
+                        href="confirmation.html"
+                        class="block w-full bg-gradient-to-r from-up-gold-600 to-up-gold-700 text-white py-3 px-6 rounded-md hover:from-up-gold-700 hover:to-up-gold-800 transition duration-200 font-bold text-lg mb-3"
+                    >
+                        Confirmar Asistencia
+                    </a>
+
                     <p class="text-xs text-gray-500 text-center mt-4">
                         Al registrar tu asistencia recibirás la ubicación exacta en Ciudad Granja vía
                         WhatsApp. Este registro es tu pase de acceso.
@@ -101,5 +106,17 @@
             </div>
         </div>
     </main>
+    
+    <!-- Footer con branding IUX -->
+    <footer class="bg-gray-50 border-t border-gray-200 py-2">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <p class="text-xs text-gray-500">
+                Sistema de invitaciones desarrollado por 
+                <a href="https://iux.com.mx" target="_blank" rel="noopener" class="text-blue-600 hover:text-blue-800 font-medium">
+                    IUX - Software Jurídico
+                </a>
+            </p>
+        </div>
+    </footer>
 </body>
 </html>
