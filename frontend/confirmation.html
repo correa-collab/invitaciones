@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Asistencia - Universidad Panamericana</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'up-gold': {
+                            50: '#fefdf8',
+                            100: '#fdf9e9',
+                            200: '#fbf0c5',
+                            300: '#f8e298',
+                            400: '#f4cc5a',
+                            500: '#f0b429',
+                            600: '#d4950f',
+                            700: '#b37b0d',
+                            800: '#8f5e14',
+                            900: '#744f16',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-up-gold-50 to-up-gold-100">
+    <div class="min-h-screen flex items-center justify-center py-4">
+        <div class="max-w-lg w-full bg-white rounded-lg shadow-lg p-8 border border-up-gold-200">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-gradient-to-br from-up-gold-600 to-up-gold-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-white font-bold text-xl" style="filter: brightness(0) invert(1);">🎓</span>
+                </div>
+                <h1 class="text-2xl font-bold text-up-gold-800 mb-2">
+                    Confirmar Asistencia
+                </h1>
+                <p class="text-gray-600">
+                    Por favor confirma tu asistencia al evento
+                </p>
+            </div>
+            
+            <!-- Aviso de Privacidad -->
+            <div id="privacyNotice" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <h3 class="text-lg font-bold text-blue-800 mb-3">📋 Aviso de Privacidad</h3>
+                <div class="text-sm text-gray-700 space-y-2">
+                    <p>
+                        <strong>Los alumnos del Posgrado en TIC's</strong>, con domicilio en México, son responsables del tratamiento de sus datos personales conforme a la <strong>Ley Federal de Protección de Datos Personales en Posesión de los Particulares</strong>.
+                    </p>
+                    <p>
+                        <strong>Finalidades del tratamiento:</strong>
+                    </p>
+                    <ul class="list-disc list-inside ml-4 space-y-1">
+                        <li>Confirmación de asistencia al evento</li>
+                        <li>Envío de información relacionada con el evento</li>
+                    </ul>
+                    <p>
+                        Sus datos se conservarán únicamente durante el tiempo necesario para cumplir estas finalidades. Usted tiene derecho de acceso, rectificación, cancelación y oposición (ARCO) de sus datos personales.
+                    </p>
+                    <p class="text-xs text-gray-600">
+                        Para ejercer sus derechos contacte a la persona que le envío la invitación.
+                    </p>
+                </div>
+                
+                <div class="mt-4 pt-3 border-t border-blue-200">
+                    <label class="flex items-start">
+                        <input type="checkbox" id="privacyAccept" required class="mt-1 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-2 text-sm text-gray-700">
+                            <strong>Acepto el tratamiento de mis datos personales</strong> conforme al presente aviso de privacidad para las finalidades descritas. *
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <form id="confirmationForm" class="space-y-4" style="display: none;">
+                <div>
+                    <label for="fullName" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nombre completo *
+                    </label>
+                    <input type="text" id="fullName" name="fullName" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-up-gold-500 focus:border-up-gold-500">
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        Correo electrónico *
+                    </label>
+                    <input type="email" id="email" name="email" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-up-gold-500 focus:border-up-gold-500"
+                           placeholder="ejemplo@correo.com">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        ¿Asistirás? *
+                    </label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="radio" name="attendance" value="yes" required class="text-up-gold-600 focus:ring-up-gold-500">
+                            <span class="ml-2 text-gray-700">Sí, asistiré</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="attendance" value="no" required class="text-up-gold-600 focus:ring-up-gold-500">
+                            <span class="ml-2 text-gray-700">No podré asistir</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="guests" class="block text-sm font-medium text-gray-700 mb-2">
+                        Número de acompañantes *
+                    </label>
+                    <select id="guests" name="guests" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-up-gold-500 focus:border-up-gold-500">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                        Teléfono / WhatsApp *
+                    </label>
+                    <input type="tel" id="phone" name="phone" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-up-gold-500 focus:border-up-gold-500"
+                           placeholder="Ej: +52 33 1234 5678">
+                </div>
+                
+                <div>
+                    <label for="comments" class="block text-sm font-medium text-gray-700 mb-2">
+                        Comentarios
+                    </label>
+                    <textarea id="comments" name="comments" rows="3" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-up-gold-500 focus:border-up-gold-500"
+                              placeholder="Ej: Comentarios adicionales"></textarea>
+                </div>
+                
+                <button type="submit" 
+                        class="w-full bg-gradient-to-r from-up-gold-600 to-up-gold-700 text-white py-3 px-4 rounded-md hover:from-up-gold-700 hover:to-up-gold-800 font-bold text-lg transition duration-200">
+                    Confirmar asistencia
+                </button>
+                
+                <p class="text-xs text-gray-500 text-center mt-4">
+                    Al registrar tu asistencia obtendrás tu pase de acceso.
+                </p>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Footer con branding IUX -->
+    <footer class="bg-gray-50 border-t border-gray-200 py-2">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <p class="text-xs text-gray-500">
+                Sistema de invitaciones desarrollado por 
+                <a href="https://iux.com.mx" target="_blank" rel="noopener" class="text-blue-600 hover:text-blue-800 font-medium">
+                    IUX - Software Jurídico
+                </a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Manejar aceptación del aviso de privacidad
+        document.getElementById('privacyAccept').addEventListener('change', function(e) {
+            const form = document.getElementById('confirmationForm');
+            const privacyNotice = document.getElementById('privacyNotice');
+            
+            if (e.target.checked) {
+                // Mostrar formulario con animación suave
+                form.style.display = 'block';
+                form.style.opacity = '0';
+                setTimeout(() => {
+                    form.style.transition = 'opacity 0.5s ease-in-out';
+                    form.style.opacity = '1';
+                }, 10);
+                
+                // Opcional: Ocultar aviso de privacidad o hacerlo más pequeño
+                privacyNotice.style.transition = 'all 0.3s ease-in-out';
+                privacyNotice.style.transform = 'scale(0.95)';
+                privacyNotice.style.opacity = '0.8';
+            } else {
+                // Ocultar formulario
+                form.style.display = 'none';
+                
+                // Restaurar aviso de privacidad
+                privacyNotice.style.transform = 'scale(1)';
+                privacyNotice.style.opacity = '1';
+            }
+        });
+
+        document.getElementById('confirmationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const fullName = formData.get('fullName');
+            const email = formData.get('email');
+            const attendance = formData.get('attendance');
+            const phone = formData.get('phone');
+            const privacyAccepted = document.getElementById('privacyAccept').checked;
+            
+            if (!privacyAccepted) {
+                alert('Debe aceptar el Aviso de Privacidad para continuar');
+                return;
+            }
+            
+            if (!fullName || !email || !attendance || !phone) {
+                alert('Por favor completa todos los campos obligatorios (*)');
+                return;
+            }
+            
+            // Preparar datos para envío al backend
+            const confirmationData = {
+                name: fullName,
+                email: email,
+                will_attend: attendance === 'yes',
+                guests: parseInt(formData.get('guests')) || 0,
+                phone: phone
+            };
+            
+            // Nota: El pase se generará DESPUÉS de recibir el folio del backend
+            
+            console.log('Enviando datos de confirmación:', {
+                ...confirmationData,
+                pass_image_base64: confirmationData.pass_image_base64 ? '[IMAGE_DATA]' : 'none'
+            });
+            
+            // Enviar al backend
+            fetch('/api/confirmations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(confirmationData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.json();
+            })
+            .then(async (data) => {
+                console.log('Respuesta del servidor:', data);
+                
+                // Si NO va a asistir, mostrar mensaje de agradecimiento
+                if (!data.will_attend) {
+                    showThankYouMessage(data.name);
+                } else {
+                    // Si SÍ va a asistir, generar el pase con el folio real y enviarlo al backend
+                    try {
+                        console.log('🎨 Generando pase con folio real:', data.folio);
+                        const passImageBase64 = await generatePassImage(
+                            data.name, 
+                            true, 
+                            data.guests || 0, 
+                            data.phone, 
+                            data.folio,
+                            data.qr_url || ''
+                        );
+                        
+                        // Almacenar el pase generado globalmente
+                        currentPassImage = passImageBase64;
+                        
+                        // Enviar la imagen al backend para el email
+                        console.log('📧 Enviando pase al backend para email...');
+                        await fetch('/api/send-pass-email', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                email: data.email,
+                                name: data.name,
+                                folio: data.folio,
+                                pass_image_base64: passImageBase64
+                            })
+                        });
+                        
+                        console.log('✅ Pase enviado al backend exitosamente');
+                        
+                        // Mostrar modal con pase ya generado
+                        showConfirmationModal(data, passImageBase64);
+                        
+                    } catch (error) {
+                        console.error('❌ Error generando/enviando pase:', error);
+                        // Mostrar modal sin pase si hay error
+                        showConfirmationModal(data);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Hubo un error al procesar tu confirmación. Por favor intenta de nuevo.');
+            });
+            
+            // Limpiar formulario
+            e.target.reset();
+        });
+
+        function showThankYouMessage(name) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg shadow-xl p-8 m-4 max-w-md w-full border border-up-gold-200">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-gradient-to-br from-gray-500 to-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-white font-bold text-2xl">💙</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Gracias por tu interés</h3>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
+                            <p class="text-gray-700 mb-2">Estimado/a <strong>${name}</strong>,</p>
+                            <p class="text-gray-600">Agradecemos tu respuesta. Lamentamos que no puedas acompañarnos en esta celebración.</p>
+                            <p class="text-gray-600 mt-2">¡Esperamos verte en futuras actividades!</p>
+                        </div>
+                        
+                        <button onclick="closeModal()" 
+                                class="w-full bg-gradient-to-r from-gray-500 to-gray-600 text-white py-3 px-4 rounded-md hover:from-gray-600 hover:to-gray-700 font-medium transition duration-200">
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Cerrar modal al hacer clic fuera
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+        }
+
+        function showConfirmationModal(data, preGeneratedPassImage = null) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg shadow-xl p-8 m-4 max-w-md w-full border border-up-gold-200">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-gradient-to-br from-up-gold-600 to-up-gold-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-white font-bold text-2xl">✓</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-up-gold-800 mb-4">¡Confirmación Guardada!</h3>
+                        
+                        <div id="saveStatus" class="bg-green-50 border border-green-200 text-green-800 px-4 py-2 rounded-lg mb-4">
+                            ✅ Tu confirmación se guardó exitosamente
+                        </div>
+                        
+                        <div class="bg-up-gold-50 p-4 rounded-lg border border-up-gold-200 mb-6 text-left">
+                            <h4 class="font-semibold text-up-gold-800 mb-2">Datos de tu confirmación:</h4>
+                            <p class="text-sm text-gray-700"><strong>📋 Folio:</strong> ${data.folio}</p>
+                            <p class="text-sm text-gray-700"><strong>👤 Nombre:</strong> ${data.name}</p>
+                            <p class="text-sm text-gray-700"><strong>📧 Email:</strong> ${data.email}</p>
+                            <p class="text-sm text-gray-700"><strong>✅ Asistencia:</strong> ${data.will_attend ? 'SÍ ASISTIRÉ' : 'NO PODRÉ ASISTIR'}</p>
+                            <p class="text-sm text-gray-700"><strong>👥 Acompañantes:</strong> ${data.guests}</p>
+                            <p class="text-sm text-gray-700"><strong>📱 WhatsApp:</strong> ${data.phone}</p>
+                            <p class="text-xs text-gray-500 mt-2"><strong>⏰ Confirmado:</strong> ${new Date(data.timestamp).toLocaleDateString('es-MX')} ${new Date(data.timestamp).toLocaleTimeString('es-MX')}</p>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <button onclick="downloadConfirmationOptimized('${data.name}', ${data.will_attend}, ${data.guests || 0}, '${data.phone}', '${data.folio || 'N/A'}', '${data.qr_url || ''}')" 
+                                    class="w-full bg-gradient-to-r from-up-gold-600 to-up-gold-700 text-white py-3 px-4 rounded-md hover:from-up-gold-700 hover:to-up-gold-800 font-medium transition duration-200">
+                                📥 Descargar Pase de Acceso
+                            </button>
+                            <button onclick="closeModal()" 
+                                    class="w-full border border-up-gold-600 text-up-gold-700 py-2 px-4 rounded-md hover:bg-up-gold-50 transition duration-200 font-medium">
+                                Cerrar
+                            </button>
+                        </div>
+                        
+                        <p class="text-xs text-gray-500 mt-4">
+                            Este es tu pase de acceso oficial.
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Cerrar modal al hacer clic fuera
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+        }
+
+        function closeModal() {
+            const modal = document.querySelector('.fixed.inset-0');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+
+
+        // Función para generar la imagen del pase (reutilizable)
+        function generatePassImage(name, willAttend, guests, phone, folio, qrUrl = '') {
+            return new Promise((resolve, reject) => {
+                try {
+                    // Crear canvas para la imagen de confirmación
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // El código de generación va aquí (se copiará desde downloadConfirmation)
+                    generatePassCanvas(canvas, ctx, name, willAttend, guests, phone, folio, qrUrl);
+                    
+                    // Convertir a base64 y retornar
+                    const imageData = canvas.toDataURL('image/png');
+                    resolve(imageData);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+
+        function generatePassCanvas(canvas, ctx, name, willAttend, guests, phone, folio, qrUrl = '') {
+            
+            // Configurar tamaño
+            canvas.width = 800;
+            canvas.height = 1000;
+            
+            // Fondo degradado dorado
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#fefdf8'); // up-gold-50
+            gradient.addColorStop(1, '#fdf9e9'); // up-gold-100
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Borde dorado elegante
+            ctx.strokeStyle = '#d4950f'; // up-gold-600
+            ctx.lineWidth = 8;
+            ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+            
+            // Título principal
+            ctx.fillStyle = '#8f5e14'; // up-gold-800
+            ctx.font = 'bold 36px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('PASE DE ACCESO', canvas.width / 2, 120);
+            
+            // Posgrado
+            ctx.fillStyle = '#b37b0d'; // up-gold-700
+            ctx.font = 'bold 28px Arial';
+            ctx.fillText('Posgrado en TIC\'s', canvas.width / 2, 170);
+            
+            // Evento
+            ctx.fillStyle = '#8f5e14'; // up-gold-800
+            ctx.font = 'bold 26px Arial';
+            ctx.fillText('Fiesta de Finalización del Posgrado', canvas.width / 2, 260);
+            
+            // Fecha y hora
+            ctx.fillStyle = '#374151'; // gray-700
+            ctx.font = '20px Arial';
+            ctx.fillText('📅 Viernes 14 noviembre 2025', canvas.width / 2, 300);
+            ctx.fillText('🕔 17:00 hrs', canvas.width / 2, 330);
+            
+            // Separador
+            ctx.strokeStyle = '#d4950f'; // up-gold-600
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(80, 370);
+            ctx.lineTo(canvas.width - 80, 370);
+            ctx.stroke();
+            
+            // Datos del titular
+            ctx.fillStyle = '#8f5e14'; // up-gold-800
+            ctx.font = 'bold 24px Arial';
+            ctx.fillText('DATOS DE CONFIRMACIÓN', canvas.width / 2, 420);
+            
+            ctx.fillStyle = '#374151'; // gray-700
+            ctx.font = '18px Arial';
+            ctx.textAlign = 'left';
+            
+            const leftMargin = 80;
+            let yPos = 470;
+            const lineSpacing = 35;
+            
+            ctx.fillText('📋 Folio: ' + folio, leftMargin, yPos);
+            yPos += lineSpacing;
+            ctx.fillText('👤 Nombre: ' + name, leftMargin, yPos);
+            yPos += lineSpacing;
+            ctx.fillText('✅ Asistencia: ' + (willAttend ? 'SÍ ASISTIRÉ' : 'NO ASISTIRÉ'), leftMargin, yPos);
+            yPos += lineSpacing;
+            ctx.fillText('👥 Acompañantes: ' + guests, leftMargin, yPos);
+            yPos += lineSpacing;
+            ctx.fillText('📱 WhatsApp: ' + phone, leftMargin, yPos);
+            yPos += lineSpacing;
+            ctx.fillText('⏰ Confirmado: ' + new Date().toLocaleDateString('es-MX') + ' ' + new Date().toLocaleTimeString('es-MX'), leftMargin, yPos);
+            
+            // Código QR con URL real
+            const qrSize = 120;
+            const qrX = canvas.width / 2 - qrSize / 2;
+            const qrY = yPos + 40;
+            
+            // Marco del QR
+            ctx.fillStyle = '#000';
+            ctx.fillRect(qrX - 5, qrY - 5, qrSize + 10, qrSize + 10);
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(qrX, qrY, qrSize, qrSize);
+            
+            // Patrón QR más realista con esquinas de localización
+            ctx.fillStyle = '#000';
+            
+            // Esquinas de localización (típicas de códigos QR)
+            // Esquina superior izquierda
+            ctx.fillRect(qrX + 10, qrY + 10, 28, 28);
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(qrX + 17, qrY + 17, 14, 14);
+            ctx.fillStyle = '#000';
+            ctx.fillRect(qrX + 21, qrY + 21, 6, 6);
+            
+            // Esquina superior derecha
+            ctx.fillRect(qrX + qrSize - 38, qrY + 10, 28, 28);
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(qrX + qrSize - 31, qrY + 17, 14, 14);
+            ctx.fillStyle = '#000';
+            ctx.fillRect(qrX + qrSize - 27, qrY + 21, 6, 6);
+            
+            // Esquina inferior izquierda
+            ctx.fillRect(qrX + 10, qrY + qrSize - 38, 28, 28);
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(qrX + 17, qrY + qrSize - 31, 14, 14);
+            ctx.fillStyle = '#000';
+            ctx.fillRect(qrX + 21, qrY + qrSize - 27, 6, 6);
+            
+            // Patrón de datos aleatorio en el centro
+            for (let i = 0; i < 12; i++) {
+                for (let j = 0; j < 12; j++) {
+                    if (Math.random() > 0.4) {
+                        ctx.fillRect(qrX + 45 + i * 5, qrY + 45 + j * 5, 4, 4);
+                    }
+                }
+            }
+            
+            // Texto del QR
+            ctx.fillStyle = '#8f5e14'; // up-gold-800
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Código QR de Acceso', canvas.width / 2, qrY + qrSize + 25);
+            ctx.font = '12px Arial';
+            ctx.fillText('Folio: ' + folio, canvas.width / 2, qrY + qrSize + 45);
+            if (qrUrl) {
+                ctx.font = '10px Arial';
+                ctx.fillStyle = '#6b7280';
+                ctx.fillText('Escanea para ver confirmación online', canvas.width / 2, qrY + qrSize + 65);
+            }
+            
+            // Instrucciones
+            ctx.fillStyle = '#b37b0d'; // up-gold-700
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText('🎫 PRESENTA ESTE PASE EN EL EVENTO', canvas.width / 2, qrY + qrSize + 95);
+            
+            // Footer con branding
+            ctx.fillStyle = '#9ca3af'; // gray-400
+            ctx.font = '12px Arial';
+            ctx.fillText('Sistema desarrollado por IUX - Software Jurídico', canvas.width / 2, canvas.height - 60);
+        }
+
+        function downloadConfirmation(name, willAttend, guests, phone, folio, qrUrl = '') {
+            // Crear canvas para la imagen de confirmación
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Generar el pase usando la función reutilizable
+            generatePassCanvas(canvas, ctx, name, willAttend, guests, phone, folio, qrUrl);
+            
+            // Descargar imagen
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `pase-acceso-${folio}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        // Variable global para almacenar el pase generado
+        let currentPassImage = null;
+        
+        function downloadConfirmationOptimized(name, willAttend, guests, phone, folio, qrUrl = '') {
+            if (currentPassImage) {
+                // Usar el pase ya generado
+                console.log('📥 Descargando pase ya generado');
+                downloadImageFromBase64(currentPassImage, `pase-acceso-${folio}.png`);
+            } else {
+                // Fallback: generar nuevo pase si no está disponible
+                console.log('⚠️ Pase no disponible, generando nuevo...');
+                downloadConfirmation(name, willAttend, guests, phone, folio, qrUrl);
+            }
+        }
+        
+        function downloadImageFromBase64(base64Data, filename) {
+            // Convertir base64 a blob y descargar
+            const base64WithoutPrefix = base64Data.split(',')[1];
+            const byteCharacters = atob(base64WithoutPrefix);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], {type: 'image/png'});
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Cerrar modal con Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
