@@ -29,6 +29,11 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 @app.get("/")
 def read_root():
+    """Servir la página principal"""
+    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+
+@app.get("/confirmation")
+def confirmation_page():
     """Servir la página de confirmación"""
     return FileResponse(os.path.join(STATIC_DIR, "confirmation.html"))
 
