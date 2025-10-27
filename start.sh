@@ -36,4 +36,4 @@ echo "   Presiona Ctrl+C para detener"
 echo "===================================="
 
 # Iniciar servidor
-python backend/simple_main.py
+cd backend && python main.py

@@ -42,5 +42,71 @@
     "guests": 3,
     "timestamp": "2025-10-23T16:20:00.000Z",
     "qr_url": "https://registro.iux.com.mx/confirmation/AW-236"
+  },
+  {
+    "folio": "UP-20251027-1E19C406",
+    "name": "chris",
+    "email": "correachris1@gmail.com",
+    "will_attend": true,
+    "guests": 1,
+    "phone": "2",
+    "privacy_accept": true,
+    "timestamp": "2025-10-27T06:36:29.407207",
+    "qr_url": "http://localhost:8000/confirmation/UP-20251027-1E19C406"
+  },
+  {
+    "folio": "UP-20251027-A5CF13AD",
+    "name": "chris",
+    "email": "correa@oid.com",
+    "will_attend": true,
+    "guests": 1,
+    "phone": "3",
+    "privacy_accept": true,
+    "timestamp": "2025-10-27T06:39:13.456041",
+    "qr_url": "http://localhost:8000/confirmation/UP-20251027-A5CF13AD"
+  },
+  {
+    "folio": "UP-20251027-5ED4E4E8",
+    "name": "ctir",
+    "email": "correachris1@gmail.com",
+    "will_attend": true,
+    "guests": 1,
+    "phone": "2",
+    "privacy_accept": true,
+    "timestamp": "2025-10-27T06:41:37.444534",
+    "qr_url": "http://localhost:8000/confirmation/UP-20251027-5ED4E4E8"
+  },
+  {
+    "folio": "UP-20251027-2B3D47DC",
+    "name": "corr",
+    "email": "correachris1@gmail.com",
+    "will_attend": true,
+    "guests": 0,
+    "phone": "1",
+    "privacy_accept": true,
+    "timestamp": "2025-10-27T06:43:59.106667",
+    "qr_url": "http://localhost:8000/confirmation/UP-20251027-2B3D47DC"
+  },
+  {
+    "folio": "UP-20251027-D02607F2",
+    "name": "dd",
+    "email": "ddd@gmail.com",
+    "will_attend": false,
+    "guests": 1,
+    "phone": "2",
+    "privacy_accept": true,
+    "timestamp": "2025-10-27T06:45:00.245777",
+    "qr_url": "http://localhost:8000/confirmation/UP-20251027-D02607F2"
+  },
+  {
+    "folio": "UP-20251027-D049438E",
+    "name": "xxx",
+    "email": "correachris1@gmail.com",
+    "will_attend": false,
+    "guests": 0,
+    "phone": "w",
+    "privacy_accept": true,
+    "timestamp": "2025-10-27T06:47:17.162361",
+    "qr_url": "http://localhost:8000/confirmation/UP-20251027-D049438E"
   }
 ]

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Asistencia - Universidad Panamericana</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .logo {
+            width: 100px;
+            height: 100px;
+            background: #1e3c72;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 36px;
+            font-weight: bold;
+        }
+        
+        h1 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .event-details {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .event-details h3 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .detail-value {
+            color: #333;
+        }
+        
+        .form-group {
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        select, input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #1e3c72;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-confirm {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-confirm:hover {
+            background: #218838;
+        }
+        
+        .btn-decline {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-decline:hover {
+            background: #c82333;
+        }
+        
+        .loading {
+            display: none;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1e3c72;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">UP</div>
+        <h1>Confirmación de Asistencia</h1>
+        <p class="subtitle">Universidad Panamericana</p>
+        
+        <div id="loading-initial" class="loading" style="display: block;">
+            <div class="spinner"></div>
+            <p>Cargando detalles de la invitación...</p>
+        </div>
+        
+        <div id="invitation-form" style="display: none;">
+            <div class="event-details" id="event-details">
+                <!-- Detalles del evento se cargarán aquí -->
+            </div>
+            
+            <form id="confirmationForm">
+                <div class="form-group">
+                    <label for="attendance">¿Confirmas tu asistencia?</label>
+                    <select id="attendance" name="attendance" required>
+                        <option value="">Selecciona una opción</option>
+                        <option value="true">Sí, asistiré</option>
+                        <option value="false">No podré asistir</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="guest-count-group" style="display: none;">
+                    <label for="guestCount">Número de acompañantes (incluyéndote)</label>
+                    <input type="number" id="guestCount" name="guestCount" min="1" max="5" value="1">
+                </div>
+                
+                <div class="form-group">
+                    <label for="comments">Comentarios adicionales (opcional)</label>
+                    <textarea id="comments" name="comments" placeholder="Cualquier comentario adicional..."></textarea>
+                </div>
+                
+                <div class="button-group">
+                    <button type="submit" class="btn btn-confirm">Confirmar Respuesta</button>
+                </div>
+            </form>
+        </div>
+        
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Enviando confirmación...</p>
+        </div>
+        
+        <div id="success" class="success">
+            <h3>¡Confirmación enviada exitosamente!</h3>
+            <p>Gracias por confirmar tu asistencia. Te esperamos en el evento.</p>
+        </div>
+        
+        <div id="error" class="error">
+            <h3>Error</h3>
+            <p id="error-message">Ha ocurrido un error. Por favor, intenta nuevamente.</p>
+        </div>
+        
+        <div id="not-found" class="error" style="display: none;">
+            <h3>Invitación no encontrada</h3>
+            <p>El folio proporcionado no existe o ya expiró.</p>
+        </div>
+    </div>
+
+    <script>
+        // Obtener el folio de la URL
+        const pathParts = window.location.pathname.split('/');
+        const folio = pathParts[pathParts.length - 1];
+        
+        // Elementos del DOM
+        const loadingInitial = document.getElementById('loading-initial');
+        const invitationForm = document.getElementById('invitation-form');
+        const eventDetails = document.getElementById('event-details');
+        const attendanceSelect = document.getElementById('attendance');
+        const guestCountGroup = document.getElementById('guest-count-group');
+        const guestCountInput = document.getElementById('guestCount');
+        const form = document.getElementById('confirmationForm');
+        const loading = document.getElementById('loading');
+        const success = document.getElementById('success');
+        const error = document.getElementById('error');
+        const errorMessage = document.getElementById('error-message');
+        const notFound = document.getElementById('not-found');
+        
+        // Cargar detalles de la invitación
+        async function loadInvitationDetails() {
+            try {
+                const response = await fetch(`/api/invitation/${folio}`);
+                
+                if (response.status === 404) {
+                    loadingInitial.style.display = 'none';
+                    notFound.style.display = 'block';
+                    return;
+                }
+                
+                if (!response.ok) {
+                    throw new Error('Error al cargar la invitación');
+                }
+                
+                const invitation = await response.json();
+                
+                // Mostrar detalles del evento
+                eventDetails.innerHTML = `
+                    <h3>${invitation.event_name}</h3>
+                    <div class="detail-item">
+                        <span class="detail-label">Invitado:</span>
+                        <span class="detail-value">${invitation.guest_name}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Fecha:</span>
+                        <span class="detail-value">${invitation.event_date}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Hora:</span>
+                        <span class="detail-value">${invitation.event_time}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Lugar:</span>
+                        <span class="detail-value">${invitation.event_location}</span>
+                    </div>
+                    ${invitation.event_description ? `
+                    <div class="detail-item">
+                        <span class="detail-label">Descripción:</span>
+                        <span class="detail-value">${invitation.event_description}</span>
+                    </div>
+                    ` : ''}
+                `;
+                
+                // Configurar límite de acompañantes
+                guestCountInput.max = invitation.max_guests;
+                
+                // Mostrar formulario
+                loadingInitial.style.display = 'none';
+                invitationForm.style.display = 'block';
+                
+            } catch (err) {
+                console.error('Error:', err);
+                loadingInitial.style.display = 'none';
+                errorMessage.textContent = err.message;
+                error.style.display = 'block';
+            }
+        }
+        
+        // Manejar cambio en asistencia
+        attendanceSelect.addEventListener('change', function() {
+            if (this.value === 'true') {
+                guestCountGroup.style.display = 'block';
+            } else {
+                guestCountGroup.style.display = 'none';
+                guestCountInput.value = '1';
+            }
+        });
+        
+        // Enviar confirmación
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const willAttend = attendanceSelect.value === 'true';
+            const guestCount = willAttend ? parseInt(guestCountInput.value) : 1;
+            const comments = document.getElementById('comments').value;
+            
+            loading.style.display = 'block';
+            invitationForm.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/confirm', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        folio: folio,
+                        will_attend: willAttend,
+                        guest_count: guestCount,
+                        comments: comments
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Error al enviar confirmación');
+                }
+                
+                loading.style.display = 'none';
+                success.style.display = 'block';
+                
+            } catch (err) {
+                console.error('Error:', err);
+                loading.style.display = 'none';
+                errorMessage.textContent = err.message;
+                error.style.display = 'block';
+            }
+        });
+        
+        // Cargar detalles al iniciar
+        loadInvitationDetails();
+    </script>
+</body>
+</html>
