@@ -1,4 +1,4 @@
-# Archivos Node.js grandes
+nohup python3 backend/simple_main.py > app.log 2>&1 &# Archivos Node.js grandes
 node.pkg
 node-pkg-extracted/
 local-node/

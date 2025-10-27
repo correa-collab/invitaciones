@@ -17,3 +17,5 @@ python-dotenv==1.0.0
 httpx==0.25.2
 pytest==7.4.3
 pytest-asyncio==0.21.1
+aiosmtplib==3.0.1
+email-mime-multipart==0.1.0
