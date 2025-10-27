@@ -176,13 +176,19 @@ class EmailService:
             attachment.set_payload(image_data)
             encoders.encode_base64(attachment)
             
-            # Nombre del archivo limpio
-            safe_name = "".join(c for c in guest_name if c.isalnum() or c in (' ', '-', '_')).rstrip()
+            # Nombre del archivo limpio (solo ASCII)
+            import unicodedata
+            # Normalizar y remover acentos
+            normalized_name = unicodedata.normalize('NFKD', guest_name)
+            ascii_name = normalized_name.encode('ASCII', 'ignore').decode('ASCII')
+            safe_name = "".join(c for c in ascii_name if c.isalnum() or c in (' ', '-', '_')).rstrip()
             filename = f"pase_acceso_{safe_name.replace(' ', '_')}.png"
             
+            # Usar codificación RFC 2231 para nombres de archivo con caracteres especiales
             attachment.add_header(
                 'Content-Disposition',
-                f'attachment; filename="{filename}"'
+                'attachment',
+                filename=('utf-8', '', filename)
             )
             
             # También agregar Content-ID para mostrar inline si es necesario
