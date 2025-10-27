@@ -1,25 +1,32 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
-from pydantic import BaseModel, EmailStr
-from typing import List, Optional
-import os
-import uuid
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
-from datetime import datetime
-import base64
-import io
+import copy
+import json
 import logging
+import os
+import threading
+from collections import defaultdict, deque
+from datetime import datetime
+from pathlib import Path
+from typing import List, Optional
+
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, EmailStr
+
 from email_service import email_service
-from pass_generator import pass_generator
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+STATIC_DIR = BASE_DIR / "static"
+DATA_DIR = BASE_DIR / "data"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+CONFIRMATIONS_FILE = DATA_DIR / "confirmations.json"
+INVITATIONS_FILE = DATA_DIR / "invitations.json"
+ADMIN_ACCESS_TOKEN = (os.getenv("ADMIN_ACCESS_TOKEN") or "").strip() or None
 
 # Create FastAPI app
 app = FastAPI(
@@ -38,11 +45,10 @@ app.add_middleware(
 )
 
 # Mount static files
-app.mount("/static", StaticFiles(directory="/Users/christian/Invitaciones/static"), name="static")
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
-# Simple data store (in production, use a real database)
-invitations_db = []
-confirmations_db = [
+# Datos iniciales (se persisten en /data)
+DEFAULT_CONFIRMATIONS: List[dict] = [
     {
         "id": 1,
         "folio": "AW-234",
@@ -88,6 +94,65 @@ confirmations_db = [
         "qr_url": "https://registro.iux.com.mx/confirmation/AW-236"
     }
 ]
+
+invitations_db: List[dict] = []
+confirmations_db: List[dict] = []
+data_lock = threading.Lock()
+RATE_LIMIT_WINDOW_SECONDS = 60
+RATE_LIMIT_MAX_REQUESTS = 5
+submission_attempts = defaultdict(deque)
+
+
+def _deep_copy(data: List[dict]) -> List[dict]:
+    return copy.deepcopy(data)
+
+
+def _load_dataset(path: Path, fallback: List[dict]) -> List[dict]:
+    if path.exists():
+        try:
+            with path.open("r", encoding="utf-8") as file:
+                payload = json.load(file)
+                if isinstance(payload, list):
+                    return payload
+        except Exception as exc:
+            logger.warning(f"No se pudo cargar {path.name}: {exc}")
+    return _deep_copy(fallback)
+
+
+def _write_dataset(path: Path, payload: List[dict]) -> None:
+    serialized = json.dumps(payload, ensure_ascii=False, indent=2)
+    path.write_text(serialized, encoding="utf-8")
+
+
+def _initialize_data() -> None:
+    global invitations_db, confirmations_db
+    invitations_db = _load_dataset(INVITATIONS_FILE, [])
+    confirmations_db = _load_dataset(CONFIRMATIONS_FILE, DEFAULT_CONFIRMATIONS)
+    if not INVITATIONS_FILE.exists():
+        _write_dataset(INVITATIONS_FILE, invitations_db)
+    if not CONFIRMATIONS_FILE.exists():
+        _write_dataset(CONFIRMATIONS_FILE, confirmations_db)
+
+
+_initialize_data()
+
+INDEX_FILE = STATIC_DIR / "index.html"
+CONFIRMATION_FILE = STATIC_DIR / "confirmation.html"
+ADMIN_FILE = STATIC_DIR / "admin.html"
+
+
+def _enforce_rate_limit(identifier: str) -> None:
+    current_ts = datetime.now().timestamp()
+    with data_lock:
+        attempts = submission_attempts[identifier]
+        while attempts and current_ts - attempts[0] > RATE_LIMIT_WINDOW_SECONDS:
+            attempts.popleft()
+        if len(attempts) >= RATE_LIMIT_MAX_REQUESTS:
+            raise HTTPException(
+                status_code=429,
+                detail="Demasiadas solicitudes. Intenta nuevamente en un minuto."
+            )
+        attempts.append(current_ts)
 events_db = [
     {
         "id": 1,
@@ -119,6 +184,7 @@ class ConfirmationCreate(BaseModel):
     guests: int = 0
     phone: str
     pass_image_base64: Optional[str] = None  # Imagen del pase generada en el frontend
+    privacy_accept: bool = False
 
 class ConfirmationResponse(BaseModel):
     id: int
@@ -133,15 +199,15 @@ class ConfirmationResponse(BaseModel):
 
 @app.get("/", response_class=HTMLResponse)
 async def root():
-    return FileResponse("/Users/christian/Invitaciones/static/index.html")
+    return FileResponse(str(INDEX_FILE))
 
 @app.get("/confirmation.html", response_class=HTMLResponse)
 async def confirmation_page():
-    return FileResponse("/Users/christian/Invitaciones/static/confirmation.html")
+    return FileResponse(str(CONFIRMATION_FILE))
 
 @app.get("/admin.html", response_class=HTMLResponse)
 async def admin_page():
-    return FileResponse("/Users/christian/Invitaciones/static/admin.html")
+    return FileResponse(str(ADMIN_FILE))
 
 @app.get("/dashboard.html", response_class=HTMLResponse)
 async def dashboard_page():
@@ -374,8 +440,10 @@ async def get_events():
 
 @app.get("/api/invitations", response_model=List[InvitationResponse])
 async def get_invitations():
+    with data_lock:
+        invitations_snapshot = list(invitations_db)
     result = []
-    for inv in invitations_db:
+    for inv in invitations_snapshot:
         event = next((e for e in events_db if e["id"] == inv["event_id"]), None)
         result.append(InvitationResponse(
             id=inv["id"],
@@ -394,14 +462,15 @@ async def create_invitation(invitation: InvitationCreate):
         raise HTTPException(status_code=404, detail="Evento no encontrado")
     
     # Create invitation
-    new_invitation = {
-        "id": len(invitations_db) + 1,
-        "event_id": invitation.event_id,
-        "guest_name": invitation.guest_name,
-        "guest_email": invitation.guest_email
-    }
-    
-    invitations_db.append(new_invitation)
+    with data_lock:
+        new_invitation = {
+            "id": _next_id(invitations_db),
+            "event_id": invitation.event_id,
+            "guest_name": invitation.guest_name,
+            "guest_email": invitation.guest_email
+        }
+        invitations_db.append(new_invitation)
+        _write_dataset(INVITATIONS_FILE, invitations_db)
     
     return InvitationResponse(
         id=new_invitation["id"],
@@ -412,8 +481,13 @@ async def create_invitation(invitation: InvitationCreate):
     )
 
 @app.get("/api/confirmations")
-async def get_confirmations():
-    return confirmations_db
+async def get_confirmations(request: Request):
+    if ADMIN_ACCESS_TOKEN:
+        provided_token = request.headers.get("x-admin-token")
+        if not provided_token or provided_token != ADMIN_ACCESS_TOKEN:
+            raise HTTPException(status_code=401, detail="Token de administrador inválido")
+    with data_lock:
+        return _deep_copy(confirmations_db)
 
 @app.get("/confirmation/{folio}", response_class=HTMLResponse)
 async def view_confirmation(folio: str):
@@ -542,166 +616,74 @@ async def view_confirmation(folio: str):
     </html>
     """)
 
-@app.post("/api/send-email")
-async def send_email_endpoint(data: dict):
-    """Enviar confirmación por email"""
-    try:
-        folio = data.get("folio")
-        email = data.get("email")
-        name = data.get("name")
-        
-        if not all([folio, email, name]):
-            raise HTTPException(status_code=400, detail="Datos incompletos")
-        
-        # Buscar la confirmación
-        confirmation = None
-        for conf in confirmations_db:
-            if conf["folio"] == folio:
-                confirmation = conf
-                break
-        
-        if not confirmation:
-            raise HTTPException(status_code=404, detail="Confirmación no encontrada")
-        
-        # Enviar email
-        success = send_confirmation_email(
-            email=email,
-            name=name,
-            folio=folio,
-            will_attend=confirmation["will_attend"],
-            guests=confirmation["guests"],
-            phone=confirmation["phone"]
-        )
-        
-        if success:
-            return {"message": "Email enviado exitosamente"}
-        else:
-            raise HTTPException(status_code=500, detail="Error al enviar email")
-            
-    except Exception as e:
-        logger.error(f"Error enviando email: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+def _next_id(dataset: List[dict]) -> int:
+    return max((item.get("id", 0) for item in dataset), default=0) + 1
 
-def generate_folio():
+
+def generate_folio() -> str:
     """Genera un folio único con formato AW-XXX"""
-    return f"AW-{len(confirmations_db) + 234:03d}"
-
-def send_confirmation_email(email: str, name: str, folio: str, image_data: str):
-    """Envía email con la confirmación"""
-    try:
-        # Configuración del email (usar variables de entorno en producción)
-        smtp_server = "smtp.gmail.com"
-        smtp_port = 587
-        sender_email = "invitaciones@up.edu.mx"  # Cambiar por email real
-        sender_password = "password"  # Cambiar por password real
-        
-        # Crear mensaje
-        msg = MIMEMultipart('related')
-        msg['From'] = sender_email
-        msg['To'] = email
-        msg['Subject'] = f"Confirmación de Asistencia - Folio {folio}"
-        
-        # HTML del email
-        html_body = f"""
-        <html>
-        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #d4950f, #b37b0d); padding: 20px; border-radius: 10px 10px 0 0; text-align: center;">
-                <h1 style="color: white; margin: 0;">Universidad Panamericana</h1>
-                <p style="color: #fdf9e9; margin: 5px 0;">Campus Guadalajara</p>
-            </div>
-            <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; border: 2px solid #d4950f;">
-                <h2 style="color: #d4950f; text-align: center;">¡Confirmación Recibida!</h2>
-                <p>Estimado/a <strong>{name}</strong>,</p>
-                <p>Hemos recibido tu confirmación de asistencia para la <strong>Fiesta de Finalización del Posgrado</strong>.</p>
-                
-                <div style="background: #fdf9e9; padding: 15px; border-left: 4px solid #d4950f; margin: 20px 0;">
-                    <p><strong>📋 Folio:</strong> {folio}</p>
-                    <p><strong>📅 Fecha:</strong> Viernes 14 de noviembre de 2025</p>
-                    <p><strong>⏰ Hora:</strong> 17:00 hrs</p>
-                    <p><strong>📍 Lugar:</strong> Ciudad Granja</p>
-                </div>
-                
-                <p>Adjunto encontrarás tu pase de acceso. Por favor, presenta este documento el día del evento.</p>
-                <p>La ubicación exacta se enviará por WhatsApp al número registrado.</p>
-                
-                <div style="text-align: center; margin: 30px 0;">
-                    <p style="color: #666; font-size: 12px;">Este es tu pase de acceso oficial</p>
-                </div>
-                
-                <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-                <p style="text-align: center; color: #888; font-size: 12px;">
-                    Posgrado en TIC's<br>
-                    Celebración de Finalización
-                </p>
-            </div>
-        </body>
-        </html>
-        """
-        
-        msg.attach(MIMEText(html_body, 'html'))
-        
-        # Adjuntar imagen si existe
-        if image_data:
-            image_binary = base64.b64decode(image_data.split(',')[1])
-            img = MIMEImage(image_binary)
-            img.add_header('Content-Disposition', f'attachment; filename="invitacion_{folio}.png"')
-            msg.attach(img)
-        
-        # Nota: En desarrollo, solo simular envío
-        print(f"Email simulado enviado a {email} con folio {folio}")
-        return True
-        
-        # Para producción, descomentar:
-        # server = smtplib.SMTP(smtp_server, smtp_port)
-        # server.starttls()
-        # server.login(sender_email, sender_password)
-        # server.send_message(msg)
-        # server.quit()
-        
-    except Exception as e:
-        print(f"Error enviando email: {e}")
-        return False
+    numbers = []
+    for confirmation in confirmations_db:
+        folio = confirmation.get("folio")
+        if isinstance(folio, str) and folio.startswith("AW-"):
+            _, _, suffix = folio.partition("-")
+            if suffix.isdigit():
+                numbers.append(int(suffix))
+    next_number = max(numbers, default=233) + 1
+    return f"AW-{next_number:03d}"
 
 @app.post("/api/confirmations", response_model=ConfirmationResponse)
-async def create_confirmation(confirmation: ConfirmationCreate):
-    
-    # Validar email duplicado (excepto correachris1@gmail.com para pruebas)
-    if confirmation.email != "correachris1@gmail.com":
-        existing_confirmation = next((conf for conf in confirmations_db if conf["email"] == confirmation.email), None)
+async def create_confirmation(request: Request, confirmation: ConfirmationCreate):
+    client_identifier = request.client.host if request.client else "anonymous"
+    _enforce_rate_limit(client_identifier)
+    normalized_email = confirmation.email.strip().lower()
+
+    if not confirmation.privacy_accept:
+        raise HTTPException(
+            status_code=400,
+            detail="Debes aceptar el aviso de privacidad para completar tu registro."
+        )
+
+    if normalized_email != "correachris1@gmail.com":
+        existing_confirmation = next(
+            (conf for conf in confirmations_db if conf.get("email", "").lower() == normalized_email),
+            None
+        )
         if existing_confirmation:
             raise HTTPException(
-                status_code=400, 
+                status_code=400,
                 detail=f"El email {confirmation.email} ya está registrado. Si necesitas actualizar tu confirmación, contacta al organizador."
             )
-    
-    # Si NO va a asistir, solo guardar y retornar mensaje
+
+    created_at = datetime.now()
+
     if not confirmation.will_attend:
-        new_confirmation = {
-            "id": len(confirmations_db) + 1,
-            "folio": "",
-            "name": confirmation.name,
-            "email": confirmation.email,
-            "will_attend": confirmation.will_attend,
-            "guests": 0,
-            "phone": confirmation.phone,
-            "timestamp": datetime.now().isoformat(),
-            "qr_url": None
-        }
-        
-        confirmations_db.append(new_confirmation)
-        
-        # Enviar email de no asistencia (opcional)
+        with data_lock:
+            new_confirmation = {
+                "id": _next_id(confirmations_db),
+                "folio": "",
+                "name": confirmation.name,
+                "email": confirmation.email,
+                "will_attend": confirmation.will_attend,
+                "guests": 0,
+                "phone": confirmation.phone,
+                "timestamp": created_at.isoformat(),
+                "qr_url": None
+            }
+            confirmations_db.append(new_confirmation)
+            _write_dataset(CONFIRMATIONS_FILE, confirmations_db)
+
         event_details = {
             "email": confirmation.email,
             "attending": False,
             "companions": 0,
             "whatsapp": confirmation.phone,
-            "confirmed_at": datetime.now().strftime("%d/%m/%Y %H:%M")
+            "confirmed_at": created_at.strftime("%d/%m/%Y %H:%M")
         }
-        
+
         try:
             from email_config import EMAIL_CONFIG
-            
+
             if EMAIL_CONFIG["enabled"]:
                 await email_service.send_confirmation_email(
                     to_email=confirmation.email,
@@ -711,46 +693,29 @@ async def create_confirmation(confirmation: ConfirmationCreate):
                 logger.info(f"✅ Email de no asistencia enviado a {confirmation.email}")
             else:
                 logger.info(f"📧 Email simulado (no asistencia) enviado a {confirmation.email}")
-                print(f"🚫 SIMULACIÓN: Email de no asistencia para {confirmation.name}")
-                print(f"📧 A: {confirmation.email}")
-                print("="*60)
         except Exception as e:
             logger.error(f"Error enviando email de no asistencia: {str(e)}")
-            print(f"📧 SIMULACIÓN: Email de no asistencia que se enviaría a {confirmation.email}")
-        
+
         return ConfirmationResponse(**new_confirmation)
-    
-    # Si SÍ va a asistir, generar folio y QR
-    folio = generate_folio()
-    qr_url = f"https://registro.iux.com.mx/confirmation/{folio}"
-    
-    # Crear confirmación
-    new_confirmation = {
-        "id": len(confirmations_db) + 1,
-        "folio": folio,
-        "name": confirmation.name,
-        "email": confirmation.email,
-        "will_attend": confirmation.will_attend,
-        "guests": confirmation.guests,
-        "phone": confirmation.phone,
-        "timestamp": datetime.now().isoformat(),
-        "qr_url": qr_url
-    }
-    
-    confirmations_db.append(new_confirmation)
-    
-    # Preparar detalles del evento para el email
-    event_details = {
-        "email": confirmation.email,
-        "attending": True,
-        "companions": confirmation.guests,
-        "whatsapp": confirmation.phone,
-        "confirmed_at": datetime.now().strftime("%d/%m/%Y %H:%M")
-    }
-    
-    # El email se enviará después desde el frontend con el pase generado
+
+    with data_lock:
+        folio = generate_folio()
+        qr_url = f"https://registro.iux.com.mx/confirmation/{folio}"
+        new_confirmation = {
+            "id": _next_id(confirmations_db),
+            "folio": folio,
+            "name": confirmation.name,
+            "email": confirmation.email,
+            "will_attend": confirmation.will_attend,
+            "guests": confirmation.guests,
+            "phone": confirmation.phone,
+            "timestamp": created_at.isoformat(),
+            "qr_url": qr_url
+        }
+        confirmations_db.append(new_confirmation)
+        _write_dataset(CONFIRMATIONS_FILE, confirmations_db)
+
     logger.info(f"🎯 Confirmación guardada para {confirmation.name} - Email se enviará con pase generado")
-    
     return ConfirmationResponse(**new_confirmation)
 
 @app.post("/api/send-confirmation-email")
@@ -765,20 +730,51 @@ async def send_email_confirmation(data: dict):
         if not all([folio, email, name]):
             raise HTTPException(status_code=400, detail="Datos incompletos")
         
-        success = send_confirmation_email(email, name, folio, image_data)
+        with data_lock:
+            confirmation = next((c for c in confirmations_db if c.get("folio") == folio), None)
+            confirmation_copy = copy.deepcopy(confirmation) if confirmation else None
         
-        if success:
-            return {"success": True, "message": "Email enviado correctamente"}
+        if not confirmation_copy:
+            raise HTTPException(status_code=404, detail="Confirmación no encontrada")
+
+        timestamp_value = confirmation_copy.get("timestamp")
+        if timestamp_value:
+            try:
+                parsed_timestamp = datetime.fromisoformat(timestamp_value.replace("Z", "+00:00"))
+                confirmed_at_human = parsed_timestamp.strftime("%d/%m/%Y %H:%M")
+            except ValueError:
+                confirmed_at_human = timestamp_value
         else:
-            raise HTTPException(status_code=500, detail="Error enviando email")
-            
+            confirmed_at_human = datetime.now().strftime("%d/%m/%Y %H:%M")
+
+        event_details = {
+            "email": confirmation_copy["email"],
+            "attending": confirmation_copy["will_attend"],
+            "companions": confirmation_copy.get("guests", 0),
+            "whatsapp": confirmation_copy.get("phone", ""),
+            "confirmed_at": confirmed_at_human
+        }
+
+        result = await email_service.send_confirmation_email(
+            to_email=email,
+            guest_name=name,
+            event_details=event_details,
+            pass_image_base64=image_data
+        )
+
+        if result.get("success"):
+            return {"success": True, "message": "Email enviado correctamente"}
+
+        raise HTTPException(status_code=500, detail=result.get("message", "Error enviando email"))
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/confirmation/{folio}")
 async def get_confirmation_by_folio(folio: str):
     """Obtiene confirmación por folio (para QR)"""
-    confirmation = next((c for c in confirmations_db if c.get("folio") == folio), None)
+    with data_lock:
+        confirmation = next((c for c in confirmations_db if c.get("folio") == folio), None)
     if not confirmation:
         raise HTTPException(status_code=404, detail="Confirmación no encontrada")
     

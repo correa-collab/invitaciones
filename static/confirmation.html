@@ -221,7 +221,8 @@
                 email: email,
                 will_attend: attendance === 'yes',
                 guests: parseInt(formData.get('guests')) || 0,
-                phone: phone
+                phone: phone,
+                privacy_accept: privacyAccepted
             };
             
             // Nota: El pase se generará DESPUÉS de recibir el folio del backend
@@ -239,9 +240,18 @@
                 },
                 body: JSON.stringify(confirmationData)
             })
-            .then(response => {
+            .then(async response => {
                 if (!response.ok) {
-                    throw new Error('Error en la respuesta del servidor');
+                    let errorMessage = 'Error en la respuesta del servidor';
+                    try {
+                        const errorBody = await response.json();
+                        if (errorBody?.detail) {
+                            errorMessage = errorBody.detail;
+                        }
+                    } catch (parseError) {
+                        console.warn('No se pudo interpretar la respuesta de error', parseError);
+                    }
+                    throw new Error(errorMessage);
                 }
                 return response.json();
             })
@@ -296,7 +306,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Hubo un error al procesar tu confirmación. Por favor intenta de nuevo.');
+                alert(error.message || 'Hubo un error al procesar tu confirmación. Por favor intenta de nuevo.');
             });
             
             // Limpiar formulario

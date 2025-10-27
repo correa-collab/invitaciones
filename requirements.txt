@@ -1,0 +1,16 @@
+# 🎓 Sistema de Invitaciones - Universidad Panamericana
+# Dependencias de producción
+
+# Framework web
+fastapi==0.120.0
+uvicorn==0.38.0
+
+# Validación y modelos
+pydantic==2.12.3
+email-validator==2.3.0
+
+# Configuración
+python-dotenv==1.2.1
+
+# Generación de imágenes (para pases de acceso)
+Pillow>=10.0.0

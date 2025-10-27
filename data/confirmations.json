@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1,
+    "folio": "AW-234",
+    "name": "María González López",
+    "email": "maria.gonzalez@email.com",
+    "phone": "+52 33 1234 5678",
+    "will_attend": true,
+    "guests": 2,
+    "timestamp": "2025-10-20T10:30:00.000Z",
+    "qr_url": "https://registro.iux.com.mx/confirmation/AW-234"
+  },
+  {
+    "id": 2,
+    "folio": "AW-235",
+    "name": "Juan Carlos Pérez",
+    "email": "juan.perez@email.com",
+    "phone": "+52 33 8765 4321",
+    "will_attend": true,
+    "guests": 1,
+    "timestamp": "2025-10-21T14:15:00.000Z",
+    "qr_url": "https://registro.iux.com.mx/confirmation/AW-235"
+  },
+  {
+    "id": 3,
+    "folio": "",
+    "name": "Ana María Rodríguez",
+    "email": "ana.rodriguez@email.com",
+    "phone": "+52 33 9876 5432",
+    "will_attend": false,
+    "guests": 0,
+    "timestamp": "2025-10-22T09:45:00.000Z",
+    "qr_url": null
+  },
+  {
+    "id": 4,
+    "folio": "AW-236",
+    "name": "Luis Fernando Sánchez",
+    "email": "luis.sanchez@email.com",
+    "phone": "+52 33 2468 1357",
+    "will_attend": true,
+    "guests": 3,
+    "timestamp": "2025-10-23T16:20:00.000Z",
+    "qr_url": "https://registro.iux.com.mx/confirmation/AW-236"
+  }
+]

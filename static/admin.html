@@ -170,6 +170,7 @@
         // Variables globales
         let allConfirmations = [];
         let filteredConfirmations = [];
+        let adminToken = localStorage.getItem('admin_access_token') || '';
 
         // Cargar datos al iniciar la página
         document.addEventListener('DOMContentLoaded', function() {
@@ -177,15 +178,40 @@
         });
 
         // Función para cargar confirmaciones desde el backend
-        async function loadConfirmations() {
+        async function loadConfirmations(forceTokenPrompt = false) {
+            if (forceTokenPrompt) {
+                const promptValue = prompt('Ingresa el token de administrador:') || '';
+                adminToken = promptValue.trim();
+                if (adminToken) {
+                    localStorage.setItem('admin_access_token', adminToken);
+                } else {
+                    localStorage.removeItem('admin_access_token');
+                }
+            }
+
+            const headers = {};
+            if (adminToken) {
+                headers['X-Admin-Token'] = adminToken;
+            }
+
             try {
-                const response = await fetch('/api/confirmations');
+                const response = await fetch('/api/confirmations', { headers });
+
+                if (response.status === 401 && !forceTokenPrompt) {
+                    return loadConfirmations(true);
+                }
+
                 if (response.ok) {
                     allConfirmations = await response.json();
                     filteredConfirmations = [...allConfirmations];
                     updateStatistics();
                     displayConfirmations();
                 } else {
+                    if (response.status === 401) {
+                        localStorage.removeItem('admin_access_token');
+                        adminToken = '';
+                        alert('Token de administrador inválido. Intenta de nuevo.');
+                    }
                     console.error('Error al cargar confirmaciones:', response.statusText);
                     showNoData();
                 }
