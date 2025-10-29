@@ -531,68 +531,89 @@
             yPos += lineSpacing;
             ctx.fillText('⏰ Confirmado: ' + new Date().toLocaleDateString('es-MX') + ' ' + new Date().toLocaleTimeString('es-MX'), leftMargin, yPos);
             
-            // Código QR con URL real
+            // Código QR con link a Google Maps
             const qrSize = 120;
             const qrX = canvas.width / 2 - qrSize / 2;
             const qrY = yPos + 40;
             
-            // Marco del QR
-            ctx.fillStyle = '#000';
-            ctx.fillRect(qrX - 5, qrY - 5, qrSize + 10, qrSize + 10);
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(qrX, qrY, qrSize, qrSize);
+            // Generar QR real con Google Maps
+            const googleMapsUrl = 'https://maps.app.goo.gl/Lfs4Pv5ennvBRVnq7';
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(googleMapsUrl)}`;
             
-            // Patrón QR más realista con esquinas de localización
-            ctx.fillStyle = '#000';
+            const qrImage = new Image();
+            qrImage.crossOrigin = 'anonymous';
+            qrImage.src = qrApiUrl;
             
-            // Esquinas de localización (típicas de códigos QR)
-            // Esquina superior izquierda
-            ctx.fillRect(qrX + 10, qrY + 10, 28, 28);
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(qrX + 17, qrY + 17, 14, 14);
-            ctx.fillStyle = '#000';
-            ctx.fillRect(qrX + 21, qrY + 21, 6, 6);
+            qrImage.onload = function() {
+                // Marco del QR
+                ctx.fillStyle = '#000';
+                ctx.fillRect(qrX - 5, qrY - 5, qrSize + 10, qrSize + 10);
+                
+                // Dibujar QR real
+                ctx.drawImage(qrImage, qrX, qrY, qrSize, qrSize);
+                
+                // Texto del QR y dirección
+                ctx.fillStyle = '#8f5e14'; // up-gold-800
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('📍 Ubicación del Evento', canvas.width / 2, qrY + qrSize + 25);
+                
+                // Dirección
+                ctx.fillStyle = '#8f5e14';
+                ctx.font = 'bold 13px Arial';
+                ctx.fillText('Calzada de los Fresnos 123', canvas.width / 2, qrY + qrSize + 45);
+                ctx.fillText('Ciudad Granja', canvas.width / 2, qrY + qrSize + 62);
+                
+                // Folio
+                ctx.font = '11px Arial';
+                ctx.fillStyle = '#6b7280';
+                ctx.fillText('Folio: ' + folio, canvas.width / 2, qrY + qrSize + 80);
+                
+                // Instrucción del QR
+                ctx.font = '10px Arial';
+                ctx.fillText('Escanea para ver ubicación en Google Maps', canvas.width / 2, qrY + qrSize + 96);
+                
+                // Instrucciones
+                ctx.fillStyle = '#b37b0d'; // up-gold-700
+                ctx.font = 'bold 16px Arial';
+                ctx.fillText('🎫 PRESENTA ESTE PASE EN EL EVENTO', canvas.width / 2, qrY + qrSize + 120);
+            };
             
-            // Esquina superior derecha
-            ctx.fillRect(qrX + qrSize - 38, qrY + 10, 28, 28);
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(qrX + qrSize - 31, qrY + 17, 14, 14);
-            ctx.fillStyle = '#000';
-            ctx.fillRect(qrX + qrSize - 27, qrY + 21, 6, 6);
-            
-            // Esquina inferior izquierda
-            ctx.fillRect(qrX + 10, qrY + qrSize - 38, 28, 28);
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(qrX + 17, qrY + qrSize - 31, 14, 14);
-            ctx.fillStyle = '#000';
-            ctx.fillRect(qrX + 21, qrY + qrSize - 27, 6, 6);
-            
-            // Patrón de datos aleatorio en el centro
-            for (let i = 0; i < 12; i++) {
-                for (let j = 0; j < 12; j++) {
-                    if (Math.random() > 0.4) {
-                        ctx.fillRect(qrX + 45 + i * 5, qrY + 45 + j * 5, 4, 4);
+            // Si la imagen no carga, dibujar un QR placeholder
+            qrImage.onerror = function() {
+                // Marco del QR
+                ctx.fillStyle = '#000';
+                ctx.fillRect(qrX - 5, qrY - 5, qrSize + 10, qrSize + 10);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(qrX, qrY, qrSize, qrSize);
+                
+                // QR placeholder simple
+                ctx.fillStyle = '#000';
+                for (let i = 0; i < 12; i++) {
+                    for (let j = 0; j < 12; j++) {
+                        if (Math.random() > 0.4) {
+                            ctx.fillRect(qrX + 10 + i * 8, qrY + 10 + j * 8, 7, 7);
+                        }
                     }
                 }
-            }
-            
-            // Texto del QR
-            ctx.fillStyle = '#8f5e14'; // up-gold-800
-            ctx.font = 'bold 14px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('Código QR de Acceso', canvas.width / 2, qrY + qrSize + 25);
-            ctx.font = '12px Arial';
-            ctx.fillText('Folio: ' + folio, canvas.width / 2, qrY + qrSize + 45);
-            if (qrUrl) {
-                ctx.font = '10px Arial';
+                
+                // Textos
+                ctx.fillStyle = '#8f5e14';
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('📍 Ubicación del Evento', canvas.width / 2, qrY + qrSize + 25);
+                ctx.font = 'bold 13px Arial';
+                ctx.fillText('Calzada de los Fresnos 123', canvas.width / 2, qrY + qrSize + 45);
+                ctx.fillText('Ciudad Granja', canvas.width / 2, qrY + qrSize + 62);
+                ctx.font = '11px Arial';
                 ctx.fillStyle = '#6b7280';
-                ctx.fillText('Escanea para ver confirmación online', canvas.width / 2, qrY + qrSize + 65);
-            }
-            
-            // Instrucciones
-            ctx.fillStyle = '#b37b0d'; // up-gold-700
-            ctx.font = 'bold 16px Arial';
-            ctx.fillText('🎫 PRESENTA ESTE PASE EN EL EVENTO', canvas.width / 2, qrY + qrSize + 95);
+                ctx.fillText('Folio: ' + folio, canvas.width / 2, qrY + qrSize + 80);
+                ctx.font = '10px Arial';
+                ctx.fillText('Escanea para ver ubicación en Google Maps', canvas.width / 2, qrY + qrSize + 96);
+                ctx.fillStyle = '#b37b0d';
+                ctx.font = 'bold 16px Arial';
+                ctx.fillText('🎫 PRESENTA ESTE PASE EN EL EVENTO', canvas.width / 2, qrY + qrSize + 120);
+            };
             
             // Footer con branding
             ctx.fillStyle = '#9ca3af'; // gray-400
