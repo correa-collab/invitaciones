@@ -27,8 +27,8 @@ class EmailService:
             self.smtp_server = "smtp.gmail.com"
             self.smtp_port = 587
             self.email = os.getenv("SMTP_EMAIL", "tu-email@gmail.com")
-            self.password = os.getenv("SMTP_PASSWORD", "tu-contraseña-de-aplicacion")
-        
+            self.password = os.getenv("SMTP_PASSWORD", "tu-contrasena-de-aplicacion")
+    
     async def send_confirmation_email(self, to_email: str, guest_name: str, 
                                     event_details: dict, pass_image_base64: Optional[str] = None):
         """
@@ -37,9 +37,8 @@ class EmailService:
         try:
             # Crear mensaje
             message = MIMEMultipart("alternative")
-            # Usar Header para codificar correctamente el subject con UTF-8
-            from email.header import Header
-            message["Subject"] = Header("✅ Confirmación de Asistencia - Posgrado en TIC's", 'utf-8')
+            # Subject sin emojis para evitar problemas de encoding
+            message["Subject"] = "Confirmacion de Asistencia - Posgrado en TICs"
             message["From"] = self.email
             message["To"] = to_email
             
