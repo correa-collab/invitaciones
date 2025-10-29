@@ -18,6 +18,7 @@ class ConfirmationRequest(BaseModel):
     will_attend: bool
     guests: int = 0
     phone: str
+    comments: Optional[str] = None
     privacy_accept: bool = True
 
 # Rutas relativas desde backend/
@@ -57,6 +58,7 @@ async def create_confirmation(confirmation: ConfirmationRequest):
             "will_attend": confirmation.will_attend,
             "guests": confirmation.guests,
             "phone": confirmation.phone,
+            "comments": confirmation.comments,
             "privacy_accept": confirmation.privacy_accept,
             "timestamp": datetime.now().isoformat(),
             "qr_url": f"http://localhost:8000/confirmation/{folio}"

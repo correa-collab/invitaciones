@@ -224,6 +224,7 @@
             const email = formData.get('email');
             const attendance = formData.get('attendance');
             const phone = formData.get('phone');
+            const comments = formData.get('comments');
             const privacyAccepted = document.getElementById('privacyAccept').checked;
             
             if (!privacyAccepted) {
@@ -249,6 +250,7 @@
                 will_attend: attendance === 'yes',
                 guests: guestsCount,
                 phone: phone,
+                comments: comments,
                 privacy_accept: privacyAccepted
             };
             
