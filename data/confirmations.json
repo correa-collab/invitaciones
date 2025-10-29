@@ -1,16 +1,5 @@
 [
   {
-    "id": 1,
-    "folio": "AW-234",
-    "name": "María González López",
-    "email": "maria.gonzalez@email.com",
-    "phone": "+52 33 1234 5678",
-    "will_attend": true,
-    "guests": 2,
-    "timestamp": "2025-10-20T10:30:00.000Z",
-    "qr_url": "https://registro.iux.com.mx/confirmation/AW-234"
-  },
-  {
     "id": 2,
     "folio": "AW-235",
     "name": "Juan Carlos Pérez",
@@ -108,5 +97,82 @@
     "privacy_accept": true,
     "timestamp": "2025-10-27T06:47:17.162361",
     "qr_url": "http://localhost:8000/confirmation/UP-20251027-D049438E"
+  },
+  {
+    "folio": "UP-20251029-149D7F8D",
+    "name": "christian",
+    "email": "correachris1@gmail.com",
+    "will_attend": true,
+    "guests": 1,
+    "phone": "2",
+    "privacy_accept": true,
+    "timestamp": "2025-10-29T09:13:36.584203",
+    "qr_url": "http://localhost:8000/confirmation/UP-20251029-149D7F8D"
+  },
+  {
+    "folio": "UP-20251029-F280AD21",
+    "name": "Christian Corre",
+    "email": "correachris1@gmail.com",
+    "will_attend": true,
+    "guests": 1,
+    "phone": "2",
+    "privacy_accept": true,
+    "timestamp": "2025-10-29T09:19:45.874110",
+    "qr_url": "http://localhost:8000/confirmation/UP-20251029-F280AD21"
+  },
+  {
+    "folio": "UP-20251029-E807C79B",
+    "name": "christian correa",
+    "email": "correachris1@gmail.com",
+    "will_attend": true,
+    "guests": 0,
+    "phone": "2",
+    "privacy_accept": true,
+    "timestamp": "2025-10-29T09:29:23.911934",
+    "qr_url": "http://localhost:8000/confirmation/UP-20251029-E807C79B"
+  },
+  {
+    "folio": "UP-20251029-081BA48D",
+    "name": "chris",
+    "email": "corrachris1@gmail.com",
+    "will_attend": true,
+    "guests": 1,
+    "phone": "10232365",
+    "privacy_accept": true,
+    "timestamp": "2025-10-29T09:52:59.822971",
+    "qr_url": "http://localhost:8000/confirmation/UP-20251029-081BA48D"
+  },
+  {
+    "folio": "UP-20251029-54646E8E",
+    "name": "cr",
+    "email": "correachris1@gmail.com",
+    "will_attend": true,
+    "guests": 0,
+    "phone": "w",
+    "privacy_accept": true,
+    "timestamp": "2025-10-29T10:23:25.999104",
+    "qr_url": "http://localhost:8000/confirmation/UP-20251029-54646E8E"
+  },
+  {
+    "folio": "UP-20251029-FC015616",
+    "name": "cc",
+    "email": "correachris1@gmail.com",
+    "will_attend": true,
+    "guests": 0,
+    "phone": "w",
+    "privacy_accept": true,
+    "timestamp": "2025-10-29T10:25:35.734933",
+    "qr_url": "http://localhost:8000/confirmation/UP-20251029-FC015616"
+  },
+  {
+    "folio": "UP-20251029-EF5D7936",
+    "name": "ch",
+    "email": "correachris1@gmail.com",
+    "will_attend": true,
+    "guests": 0,
+    "phone": "q",
+    "privacy_accept": true,
+    "timestamp": "2025-10-29T10:28:56.548762",
+    "qr_url": "http://localhost:8000/confirmation/UP-20251029-EF5D7936"
   }
 ]

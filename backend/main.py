@@ -7,6 +7,7 @@ import json
 import os
 from datetime import datetime
 import uuid
+from email_service import email_service
 
 app = FastAPI(title="Sistema de Invitaciones")
 
@@ -92,8 +93,6 @@ async def create_confirmation(confirmation: ConfirmationRequest):
 async def send_pass_email(request: Request):
     """Endpoint para recibir la imagen del pase y enviar por email"""
     try:
-        from email_service import email_service
-        
         data = await request.json()
         email = data.get('email')
         name = data.get('name')
@@ -170,6 +169,60 @@ async def get_confirmation_by_folio(folio: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al buscar confirmación: {str(e)}")
+
+@app.delete("/api/confirmations/{folio}")
+async def delete_confirmation(folio: str):
+    """Eliminar una confirmación específica por folio"""
+    try:
+        confirmations_file = os.path.join(DATA_DIR, "confirmations.json")
+        
+        if not os.path.exists(confirmations_file):
+            raise HTTPException(status_code=404, detail="No hay confirmaciones registradas")
+        
+        with open(confirmations_file, 'r', encoding='utf-8') as f:
+            confirmations = json.load(f)
+        
+        # Buscar y eliminar confirmación por folio
+        initial_count = len(confirmations)
+        confirmations = [conf for conf in confirmations if conf['folio'] != folio]
+        
+        if len(confirmations) == initial_count:
+            raise HTTPException(status_code=404, detail=f"Confirmación con folio {folio} no encontrada")
+        
+        # Guardar confirmaciones actualizadas
+        with open(confirmations_file, 'w', encoding='utf-8') as f:
+            json.dump(confirmations, f, ensure_ascii=False, indent=2)
+        
+        return {"success": True, "message": f"Confirmación {folio} eliminada exitosamente"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al eliminar confirmación: {str(e)}")
+
+@app.delete("/api/confirmations")
+async def delete_all_confirmations():
+    """Eliminar todas las confirmaciones"""
+    try:
+        confirmations_file = os.path.join(DATA_DIR, "confirmations.json")
+        
+        if not os.path.exists(confirmations_file):
+            return {"success": True, "message": "No hay confirmaciones para eliminar", "deleted_count": 0}
+        
+        # Leer cuántas confirmaciones hay antes de eliminar
+        with open(confirmations_file, 'r', encoding='utf-8') as f:
+            confirmations = json.load(f)
+        
+        deleted_count = len(confirmations)
+        
+        # Vaciar el archivo (guardar lista vacía)
+        with open(confirmations_file, 'w', encoding='utf-8') as f:
+            json.dump([], f, ensure_ascii=False, indent=2)
+        
+        return {"success": True, "message": f"Todas las confirmaciones eliminadas", "deleted_count": deleted_count}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al eliminar todas las confirmaciones: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
