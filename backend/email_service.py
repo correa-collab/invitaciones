@@ -68,7 +68,10 @@ class EmailService:
             return {"success": True, "message": "Email enviado exitosamente"}
             
         except Exception as e:
+            import traceback
             print(f"Error enviando email: {str(e)}")
+            print(f"Traceback completo:")
+            traceback.print_exc()
             return {"success": False, "message": f"Error enviando email: {str(e)}"}
     
     def _create_email_html(self, guest_name: str, event_details: dict) -> str:
